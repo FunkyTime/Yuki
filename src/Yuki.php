@@ -13,6 +13,7 @@ use Exception, SoapClient, SoapVar;
  * @method array Authenticate(array $params)
  * @method array Administrations(array $params)
  * @method array ProcessSalesInvoices(array $params)
+ * @method array CheckOutstandingItem(array $params)
  */
 class Yuki
 {
@@ -108,6 +109,17 @@ class Yuki
             throw new Exception($result_xml->Invoice->Message);
         }
         return true; // success
+    }
+
+
+    public function GetInvoiceBalance($invoiceReference){
+        $yuki_invoice = $this->CheckOutstandingItem(['sessionID' => $this->sid, 'Reference' => $invoiceReference]);
+        $xml = simplexml_load_string($yuki_invoice->CheckOutstandingItemResult->any);
+
+        return [
+            "openAmount" => floatval($xml->Item->OpenAmount),
+            "originalAmount" => floatval($xml->Item->OriginalAmount)
+        ];
     }
 
     /**
