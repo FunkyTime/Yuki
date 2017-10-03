@@ -17,6 +17,7 @@ use Exception, SoapClient, SoapVar;
 class Yuki
 {
     const SALES_WSDL = 'https://api.yukiworks.nl/ws/Sales.asmx?WSDL';
+    const ACCOUNTING_WSDL = 'https://api.yukiworks.nl/ws/Accounting.asmx?WSDL';
 
     private $soap, // the SOAP client
         // the currently active identifiers for the logged in Yuki user:
@@ -131,7 +132,6 @@ class Yuki
     private function aid() {
         // could maybe be saved to DB the first time, but an API key might later get attached to a different Administration...
         $result = $this->Administrations(['sessionID' => $this->sid]);
-
         // Save and return the result
         try {
             $xml = simplexml_load_string(current($result->AdministrationsResult));
@@ -181,10 +181,29 @@ class Yuki
      * Yuki constructor (creates the SOAP client).
      *
      * @param null|string $apikey If provided, will immediately connect
+     *  @param null|string $wsdl 'sales' or 'accounting', if null then 'sales' to be backwards compatible with older version
      * @throws Exception If the SOAP client could not be instantiated, or the login failed
      */
-    public function __construct($apikey = null) {
-        $this->soap = new SoapClient(self::SALES_WSDL);
+    public function __construct($apikey = null, $wsdl = null) {
+        $this->soap = new SoapClient($this->getWSDL($wsdl), ['trace' => true]);
         if($apikey) $this->login($apikey);
+    }
+
+    /***
+     * @param string $wsdl name of the corresponding WSDL
+     * @return string URL of the corresponding WSDL
+     */
+    private function getWSDL($wsdl){
+        switch ($wsdl){
+            case 'sales':
+                return self::SALES_WSDL;
+                break;
+            case 'accounting':
+                return self::ACCOUNTING_WSDL;
+                break;
+            default:
+                return self::SALES_WSDL;
+                break;
+        }
     }
 }
