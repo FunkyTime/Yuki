@@ -335,4 +335,30 @@ class Yuki
             throw new Exception('Could not retrieve Transactions for administration ' . $this->aid . ' and accountcode: ' . $accountCode . ' from ' . $start . ' to ' . $end);
         }
     }
+
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function getOpenClientTransactions()
+    {
+        try {
+            return $this->OutstandingDebtorItems(['sessionID' => $this->sid, 'administrationID' => $this->aid, 'includeBankTransactions' => true, 'sortOrder' => 'DateAsc']);
+        } catch (ResponseException $e) {
+            throw new Exception('Could not retrieve outstanding debtor items.');
+        }
+    }
+
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function getOpenVendorTransactions()
+    {
+        try {
+            return $this->OutstandingCreditorItems(['sessionID' => $this->sid, 'administrationID' => $this->aid, 'includeBankTransactions' => true, 'sortOrder' => 'DateAsc']);
+        } catch (ResponseException $e) {
+            throw new Exception('Could not retrieve outstanding creditor items.');
+        }
+    }
 }
