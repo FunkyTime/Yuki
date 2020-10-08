@@ -319,4 +319,20 @@ class Yuki
             throw new Exception('Could not retrieve Transactions for administration ' . $this->aid . ' and accountcode: ' . $accountCode . ' from ' . $start . ' to ' . $end);
         }
     }
+
+    /**
+     * @param $accountCode
+     * @param $start
+     * @param $end
+     * @return array
+     * @throws Exception
+     */
+    public function GetDetails($accountCode, $start, $end)
+    {
+        try {
+            return $this->GetTransactionDetails(['sessionID' => $this->sid, 'administrationID' => $this->aid, 'GLAccountCode' => $accountCode, 'StartDate' => $start, 'EndDate' => $end, 'financialMode' => 1]);
+        } catch (ResponseException $e) {
+            throw new Exception('Could not retrieve Transactions for administration ' . $this->aid . ' and accountcode: ' . $accountCode . ' from ' . $start . ' to ' . $end);
+        }
+    }
 }
