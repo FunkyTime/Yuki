@@ -361,4 +361,45 @@ class Yuki
             throw new Exception('Could not retrieve outstanding creditor items.');
         }
     }
+
+    /**
+     * @return Object
+     * @throws Exception
+     */
+    public function getDomains()
+    {
+        try {
+            return $this->Domains(['sessionID' => $this->sid, 'administrationID' => $this->aid]);
+        } catch (ResponseException $e) {
+            throw new Exception('Could not retrieve domains.');
+        }
+    }
+
+    /**
+     * @return Object
+     * @throws Exception
+     */
+    public function getDomain()
+    {
+        try {
+            return $this->GetCurrentDomain(['sessionID' => $this->sid]);
+            // return $this->GetGLAccountScheme(['sessionID' => $this->sid, 'administrationID' => $this->aid]);
+        } catch (ResponseException $e) {
+            throw new Exception('Could not retrieve domains.');
+        }
+    }
+
+    /**
+     * @param  string $domainId
+     * @return Object
+     * @throws Exception
+     */
+    public function setDomain(string $domainId)
+    {
+        try {
+            return $this->SetCurrentDomain(['sessionID' => $this->sid, 'domainID' => $domainId]);
+        } catch (ResponseException $e) {
+            throw new Exception('Could not set domain.');
+        }
+    }
 }
