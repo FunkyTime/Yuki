@@ -337,13 +337,14 @@ class Yuki
     }
 
     /**
-     * @return array
-     * @throws Exception
+     * @param   bool $includeBankTransactions
+     * @return  array
+     * @throws  Exception
      */
-    public function getOpenClientTransactions()
+    public function getOpenClientTransactions($includeBankTransactions = false)
     {
         try {
-            return $this->OutstandingDebtorItems(['sessionID' => $this->sid, 'administrationID' => $this->aid, 'includeBankTransactions' => true, 'sortOrder' => 'DateAsc']);
+            return $this->OutstandingDebtorItems(['sessionID' => $this->sid, 'administrationID' => $this->aid, 'includeBankTransactions' => $includeBankTransactions, 'sortOrder' => 'DateAsc']);
         } catch (ResponseException $e) {
             throw new Exception('Could not retrieve outstanding debtor items.');
         }
@@ -353,10 +354,10 @@ class Yuki
      * @return array
      * @throws Exception
      */
-    public function getOpenVendorTransactions()
+    public function getOpenVendorTransactions($includeBankTransactions = false)
     {
         try {
-            return $this->OutstandingCreditorItems(['sessionID' => $this->sid, 'administrationID' => $this->aid, 'includeBankTransactions' => true, 'sortOrder' => 'DateAsc']);
+            return $this->OutstandingCreditorItems(['sessionID' => $this->sid, 'administrationID' => $this->aid, 'includeBankTransactions' => $includeBankTransactions, 'sortOrder' => 'DateAsc']);
         } catch (ResponseException $e) {
             throw new Exception('Could not retrieve outstanding creditor items.');
         }
