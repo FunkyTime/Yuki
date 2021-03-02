@@ -403,4 +403,14 @@ class Yuki
             throw new Exception('Could not set domain.');
         }
     }
+
+    /** The  administration data contains the start date */
+    public function getAdministrations()
+    {
+        try {
+            return $this->Administrations(['sessionID' => $this->sid]);
+        } catch (ResponseException $e) {
+            throw new Exception('Could not set domain.');
+        }
+    }
 }
