@@ -413,4 +413,24 @@ class Yuki
             throw new Exception('Could not set domain.');
         }
     }
+
+    public function getTransactionDetail(string $transaction_id)
+    {
+        try {
+            return $this->GetTransactionDocument(['sessionID' => $this->sid, 'administrationID' => $this->aid, 'transactionID' => $transaction_id]);
+        } catch (ResponseException $e) {
+            Log::error(['Error while getting transaction detail' => $e]);
+            throw new Exception($e->getMessage());
+        }
+    }
+    
+    public function getCompanies(string $domainID)
+    {
+        try {
+            return $this->SearchContacts(['sessionID' => $this->sid, 'domainID' => $domainID]);
+        } catch (ResponseException $e) {
+            Log::error(['Error while getting companies' => $e]);
+            throw new Exception($e->getMessage());
+        }
+    }
 }
