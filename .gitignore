@@ -1,0 +1,12 @@
+/node_modules
+/vendor
+.phpunit.result.cache
+.vagrant
+.vscode
+npm-debug.log
+yarn-error.log
+.editor-config
+Vagrantfile
+vagrant-bootstrap.sh
+vagrant-connect.sh
+.DS_Store
