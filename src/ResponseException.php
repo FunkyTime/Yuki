@@ -5,16 +5,16 @@ namespace FunkyTime;
 
 class ResponseException extends \Exception
 {
-    private $repsonse = '';
+    private string $response = '';
 
-    public function __construct($message, $repsonse)
+    public function __construct($message, $response)
     {
-        $this->repsonse = $repsonse;
+        $this->response = $response;
         parent::__construct($message);
     }
 
-    public function getResponse()
+    public function getResponse(): string
     {
-        return $this->repsonse;
+        return $this->response;
     }
 }
