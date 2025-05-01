@@ -184,10 +184,16 @@ class Yuki
         // Save and return the result
         try {
             $result = $result->AdministrationsResult;
-            if (!is_array($result)) {
-                throw new Exception();
+
+            if (is_array($result)) {
+                $xmlString = $result[0];
+            } elseif (is_object($result) && isset($result->any)) {
+                $xmlString = $result->any;
+            } else {
+                throw new Exception("Unexpected response format. Result: " . var_export($result, true));
             }
-            $xml = simplexml_load_string($result[0]);
+
+            $xml = simplexml_load_string($xmlString);
             if (!$xml) {
                 throw new Exception();
             }
