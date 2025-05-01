@@ -148,8 +148,7 @@ class Yuki
         return true; // success
     }
 
-
-    public function GetInvoiceBalance($invoiceReference): array {
+    public function GetInvoiceBalance(string $invoiceReference): array {
         $yuki_invoice = $this->CheckOutstandingItem(['sessionID' => $this->sid, 'Reference' => $invoiceReference]);
         $xml = simplexml_load_string($yuki_invoice->CheckOutstandingItemResult->any);
 
@@ -213,7 +212,7 @@ class Yuki
         $result = $this->Authenticate(['accessKey' => $api_key]);
 
         // Save and return the result
-        if ($result && !empty($result->AuthenticateResult)) {
+        if ($result?->AuthenticateResult) {
             return $result->AuthenticateResult;
         } else {
             throw new Exception('Authentication failed. Please check your company\'s Yuki accessKey.');
@@ -237,7 +236,7 @@ class Yuki
      * @return mixed Response
      * @throws Exception
      */
-    public function __call(string $method, array $params) {
+    public function __call(string $method, array $params): mixed {
         try {
             return $this->soap->__soapCall($method, $params);
         } catch (Exception $e) {
@@ -316,13 +315,13 @@ class Yuki
     }
 
     /**
-     * @param $accountCode
-     * @param $start
-     * @param $end
+     * @param string $accountCode
+     * @param string $start
+     * @param string $end
      * @return object
      * @throws Exception
      */
-    public function GetTransactions($accountCode, $start, $end): object {
+    public function GetTransactions(string $accountCode, string $start, string $end): object {
         try {
             return $this->GLAccountTransactions(['sessionID' => $this->sid, 'administrationID' => $this->aid, 'GLAccountCode' => $accountCode, 'StartDate' => $start, 'EndDate' => $end]);
         } catch (Exception $e) {
