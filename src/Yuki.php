@@ -29,10 +29,22 @@ use Exception, SoapClient, SoapVar;
  */
 class Yuki
 {
-    private const SALES_WSDL = 'https://api.yukiworks.nl/ws/Sales.asmx?WSDL';
-    private const ACCOUNTING_WSDL = 'https://api.yukiworks.nl/ws/Accounting.asmx?WSDL';
-    private const ACCOUNTINGINFO_WSDL = 'https://api.yukiworks.nl/ws/AccountingInfo.asmx?WSDL';
+    public const REGION_NL = 'nl';
+    public const REGION_BE = 'be';
 
+    private const API_DOMAINS = [
+        self::REGION_NL => 'https://api.yukiworks.nl',
+        self::REGION_BE => 'https://api.yukiworks.be',
+    ];
+
+    private const WSDL_SERVICES = [
+        'sales' => 'Sales',
+        'accounting' => 'Accounting',
+        'accountinginfo' => 'AccountingInfo',
+    ];
+
+    private string $region;
+    private string $apiDomain;
     private SoapClient $soap; // the SOAP client
 
     // The currently active identifiers for the logged in Yuki user:
@@ -246,33 +258,65 @@ class Yuki
     }
 
     /**
+     * Guess the Yuki API region from an owner VAT number.
+     *
+     * Returns null when the VAT prefix is not NL or BE. Callers should store the region
+     * explicitly when VAT is unavailable.
+     */
+    public static function regionFromVat(?string $vat): ?string {
+        if (!$vat) {
+            return null;
+        }
+
+        $vat = strtoupper(preg_replace('/[\s.\-]/', '', $vat));
+        if (str_starts_with($vat, 'BE')) {
+            return self::REGION_BE;
+        }
+        if (str_starts_with($vat, 'NL')) {
+            return self::REGION_NL;
+        }
+
+        return null;
+    }
+
+    public function getRegion(): string {
+        return $this->region;
+    }
+
+    /**
      * Yuki constructor (creates the SOAP client).
      *
      * @param ?string $apikey If provided, will immediately connect.
-     * @param string $wsdl 'sales' or 'accounting'.
+     * @param string $wsdl 'sales', 'accounting', or 'accountinginfo'.
+     * @param string $region 'nl' or 'be'; selects api.yukiworks.nl vs api.yukiworks.be.
      * @throws Exception If the SOAP client could not be instantiated, or the login failed.
      */
-    public function __construct(string $apikey = null, string $wsdl = 'sales') {
+    public function __construct(string $apikey = null, string $wsdl = 'sales', string $region = self::REGION_BE) {
+        $this->region = self::normalizeRegion($region);
+        $this->apiDomain = self::API_DOMAINS[$this->region];
         $this->soap = new SoapClient($this->getWSDL($wsdl), ['trace' => true]);
         if ($apikey) {
             $this->login($apikey);
         }
     }
 
-    /***
+    private static function normalizeRegion(string $region): string {
+        $region = strtolower($region);
+        if (!isset(self::API_DOMAINS[$region])) {
+            throw new Exception('Unknown Yuki region "' . $region . '". Use "' . self::REGION_NL . '" or "' . self::REGION_BE . '".');
+        }
+
+        return $region;
+    }
+
+    /**
      * @param string $wsdl name of the corresponding WSDL.
      * @return string URL of the corresponding WSDL.
      */
     private function getWSDL(string $wsdl): string {
-        switch ($wsdl) {
-            case 'accounting':
-                return self::ACCOUNTING_WSDL;
-            case 'accountinginfo':
-                return self::ACCOUNTINGINFO_WSDL;
-            case 'sales':
-            default:
-                return self::SALES_WSDL;
-        }
+        $service = self::WSDL_SERVICES[$wsdl] ?? self::WSDL_SERVICES['sales'];
+
+        return $this->apiDomain . '/ws/' . $service . '.asmx?WSDL';
     }
 
     /**

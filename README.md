@@ -30,3 +30,19 @@ $YukiAccounting = new \FunkyTime\Yuki($api_key, 'accounting');
 $status = $YukiAccounting->GetInvoiceBalance($inv_reference);
 // Result: an array with keys 'openAmount' and 'originalAmount' 
 ```
+
+## Region (NL / BE)
+
+Yuki uses separate API hosts per country. Pass the region as the third constructor argument:
+
+- Belgian customers: `api.yukiworks.be` (default)
+- Dutch customers: `api.yukiworks.nl`
+
+```php
+$region = \FunkyTime\Yuki::regionFromVat($ownerVat) ?? \FunkyTime\Yuki::REGION_BE;
+
+$YukiSales = new \FunkyTime\Yuki($api_key, 'sales', $region);
+$YukiAccounting = new \FunkyTime\Yuki($api_key, 'accounting', $region);
+```
+
+When VAT is unavailable, store the region alongside the API key in your application.
